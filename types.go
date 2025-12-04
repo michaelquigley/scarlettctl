@@ -32,6 +32,40 @@ func (t ControlType) String() string {
 	}
 }
 
+// InterfaceType represents the ALSA control interface type
+type InterfaceType int
+
+const (
+	InterfaceCard InterfaceType = iota
+	InterfaceHwDep
+	InterfaceMixer
+	InterfacePCM
+	InterfaceRawMidi
+	InterfaceTimer
+	InterfaceSequencer
+)
+
+func (i InterfaceType) String() string {
+	switch i {
+	case InterfaceCard:
+		return "card"
+	case InterfaceHwDep:
+		return "hwdep"
+	case InterfaceMixer:
+		return "mixer"
+	case InterfacePCM:
+		return "pcm"
+	case InterfaceRawMidi:
+		return "rawmidi"
+	case InterfaceTimer:
+		return "timer"
+	case InterfaceSequencer:
+		return "sequencer"
+	default:
+		return "unknown"
+	}
+}
+
 // PortCategory represents the routing port category
 type PortCategory int
 
@@ -69,12 +103,15 @@ type Card struct {
 
 // Control represents an ALSA control element
 type Control struct {
-	NumID   uint
-	Name    string
-	Type    ControlType
-	Count   int
-	Index   int
-	card    *Card
+	NumID     uint
+	Name      string
+	Type      ControlType
+	Count     int
+	Index     int
+	card      *Card
+	Interface InterfaceType // interface type (mixer, pcm, card, etc.)
+	Device    uint          // device number
+	Subdevice uint          // subdevice number
 	// for integer/enumerated types
 	Min int64
 	Max int64

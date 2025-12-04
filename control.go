@@ -24,8 +24,15 @@ func (c *Card) GetControls() ([]*Control, error) {
 	return controls, nil
 }
 
-// FindControl finds a control by exact name
+// FindControl finds a control by exact name or full ID
+// If the input contains ':' and '/', it is treated as a full ID (e.g., "mixer:0.0/Level Meter[0]")
+// Otherwise it is treated as a control name
 func (c *Card) FindControl(name string) (*Control, error) {
+	// try full ID lookup if input looks like an ID
+	if strings.Contains(name, ":") && strings.Contains(name, "/") {
+		return c.FindControlByID(name)
+	}
+
 	controls, err := c.GetControls()
 	if err != nil {
 		return nil, err
@@ -38,6 +45,23 @@ func (c *Card) FindControl(name string) (*Control, error) {
 	}
 
 	return nil, fmt.Errorf("control '%s' not found", name)
+}
+
+// FindControlByID finds a control by its full identifier
+// The ID format is "interface:device.subdevice/name[index]" (e.g., "mixer:0.0/Level Meter[0]")
+func (c *Card) FindControlByID(id string) (*Control, error) {
+	controls, err := c.GetControls()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, ctl := range controls {
+		if ctl.FullID() == id {
+			return ctl, nil
+		}
+	}
+
+	return nil, fmt.Errorf("control with id '%s' not found", id)
 }
 
 // FindControlByPrefix finds a control by name prefix
@@ -182,13 +206,15 @@ func (ctl *Control) SetValueByString(valueStr string) error {
 func (ctl *Control) String() string {
 	var sb strings.Builder
 
+	// show interface/device/subdevice prefix for disambiguation
+	sb.WriteString(fmt.Sprintf("[%s:%d.%d] ", ctl.Interface, ctl.Device, ctl.Subdevice))
 	sb.WriteString(fmt.Sprintf("%-50s [%s]", ctl.Name, ctl.Type))
 
 	switch ctl.Type {
 	case ControlTypeInteger, ControlTypeInteger64:
-		sb.WriteString(fmt.Sprintf(" Range: [%d, %d]", ctl.Min, ctl.Max))
+		sb.WriteString(fmt.Sprintf(" range: [%d, %d]", ctl.Min, ctl.Max))
 	case ControlTypeEnumerated:
-		sb.WriteString(fmt.Sprintf(" Items: %v", ctl.Items))
+		sb.WriteString(fmt.Sprintf(" items: %v", ctl.Items))
 	}
 
 	if ctl.Count > 1 {
@@ -196,6 +222,11 @@ func (ctl *Control) String() string {
 	}
 
 	return sb.String()
+}
+
+// FullID returns a unique identifier string for the control
+func (ctl *Control) FullID() string {
+	return fmt.Sprintf("%s:%d.%d/%s[%d]", ctl.Interface, ctl.Device, ctl.Subdevice, ctl.Name, ctl.Index)
 }
 
 // DetailedString returns a detailed string representation including current value

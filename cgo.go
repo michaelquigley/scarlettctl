@@ -163,14 +163,22 @@ func enumerateControls(h *alsaHandle) ([]*Control, error) {
 		ctlType := ControlType(C.snd_ctl_elem_info_get_type(info))
 		ctlCount := int(C.snd_ctl_elem_info_get_count(info))
 
+		// get element identifier metadata
+		ctlInterface := InterfaceType(C.snd_ctl_elem_info_get_interface(info))
+		ctlDevice := uint(C.snd_ctl_elem_info_get_device(info))
+		ctlSubdevice := uint(C.snd_ctl_elem_info_get_subdevice(info))
+
 		// create control for each value in multi-value controls
 		for idx := 0; idx < ctlCount; idx++ {
 			ctl := &Control{
-				NumID: uint(numid),
-				Name:  name,
-				Type:  ctlType,
-				Count: ctlCount,
-				Index: idx,
+				NumID:     uint(numid),
+				Name:      name,
+				Type:      ctlType,
+				Count:     ctlCount,
+				Index:     idx,
+				Interface: ctlInterface,
+				Device:    ctlDevice,
+				Subdevice: ctlSubdevice,
 			}
 
 			// get type-specific information
