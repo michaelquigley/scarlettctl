@@ -46,8 +46,6 @@ func (em *EventMonitor) Watch(callback func(numid uint) error) error {
 		}
 	}
 
-	fmt.Println("monitoring for events... (press ctrl+c to stop)")
-
 	for em.running {
 		// check if we should stop
 		select {
