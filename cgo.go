@@ -297,6 +297,25 @@ func checkEvent(h *alsaHandle) (bool, error) {
 	return false, nil
 }
 
+// listCardNumbers returns the indices of all available ALSA cards
+func listCardNumbers() ([]int, error) {
+	var cardNum C.int = -1
+	var cards []int
+
+	for {
+		err := C.snd_card_next(&cardNum)
+		if err < 0 {
+			return nil, alsaError(err, "enumerate cards")
+		}
+		if cardNum < 0 {
+			break // no more cards
+		}
+		cards = append(cards, int(cardNum))
+	}
+
+	return cards, nil
+}
+
 // cstrlen finds the length of a null-terminated C string in a byte slice
 func cstrlen(b []byte) int {
 	for i, c := range b {

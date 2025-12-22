@@ -43,11 +43,15 @@ func (c *Card) String() string {
 func ListCards() ([]*Card, error) {
 	cards := make([]*Card, 0)
 
-	// try card numbers 0-7 (typical range)
-	for i := 0; i < 8; i++ {
+	cardNumbers, err := listCardNumbers()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, i := range cardNumbers {
 		name, err := getCardInfo(i)
 		if err != nil {
-			continue // card doesn't exist or can't be accessed
+			continue // card can't be accessed
 		}
 
 		// filter for Scarlett devices
