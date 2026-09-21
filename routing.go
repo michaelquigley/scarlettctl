@@ -349,7 +349,8 @@ func (c *Card) PrintRoutingMatrix() error {
 
 	fmt.Println("\n════════════════════════════════════════════════════════════")
 	fmt.Printf("total: %d sources, %d sinks\n", len(sources), len(sinks))
-	fmt.Println("════════════════════════════════════════════════════════════\n")
+	fmt.Println("════════════════════════════════════════════════════════════")
+	fmt.Println()
 
 	return nil
 }
