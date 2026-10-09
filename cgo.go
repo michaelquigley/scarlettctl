@@ -77,19 +77,19 @@ func openCard(cardNum int) (*alsaHandle, error) {
 	}
 
 	return &alsaHandle{
-		ptr:     uintptr(unsafe.Pointer(handle)),
+		ptr:     unsafe.Pointer(handle),
 		pollFds: pollFds,
 	}, nil
 }
 
 // closeCard closes an ALSA control handle
 func closeCard(h *alsaHandle) error {
-	if h == nil || h.ptr == 0 {
+	if h == nil || h.ptr == nil {
 		return nil
 	}
-	handle := (*C.snd_ctl_t)(unsafe.Pointer(h.ptr))
+	handle := (*C.snd_ctl_t)(h.ptr)
 	err := C.snd_ctl_close(handle)
-	h.ptr = 0
+	h.ptr = nil
 	return alsaError(err, "close card")
 }
 
@@ -121,7 +121,7 @@ func getCardInfo(cardNum int) (string, error) {
 
 // enumerateControls lists all controls on a card
 func enumerateControls(h *alsaHandle) ([]*Control, error) {
-	handle := (*C.snd_ctl_t)(unsafe.Pointer(h.ptr))
+	handle := (*C.snd_ctl_t)(h.ptr)
 	var info *C.snd_ctl_elem_info_t
 	C.snd_ctl_elem_info_malloc(&info)
 	defer C.snd_ctl_elem_info_free(info)
@@ -212,7 +212,7 @@ func enumerateControls(h *alsaHandle) ([]*Control, error) {
 
 // readControl reads the current value of a control
 func readControl(h *alsaHandle, ctl *Control) (int64, error) {
-	handle := (*C.snd_ctl_t)(unsafe.Pointer(h.ptr))
+	handle := (*C.snd_ctl_t)(h.ptr)
 	var value *C.snd_ctl_elem_value_t
 	C.snd_ctl_elem_value_malloc(&value)
 	defer C.snd_ctl_elem_value_free(value)
@@ -242,7 +242,7 @@ func readControl(h *alsaHandle, ctl *Control) (int64, error) {
 
 // writeControl writes a value to a control
 func writeControl(h *alsaHandle, ctl *Control, value int64) error {
-	handle := (*C.snd_ctl_t)(unsafe.Pointer(h.ptr))
+	handle := (*C.snd_ctl_t)(h.ptr)
 	var elemValue *C.snd_ctl_elem_value_t
 	C.snd_ctl_elem_value_malloc(&elemValue)
 	defer C.snd_ctl_elem_value_free(elemValue)
@@ -275,7 +275,7 @@ func writeControl(h *alsaHandle, ctl *Control, value int64) error {
 
 // checkEvent checks if there's a pending event
 func checkEvent(h *alsaHandle) (bool, error) {
-	handle := (*C.snd_ctl_t)(unsafe.Pointer(h.ptr))
+	handle := (*C.snd_ctl_t)(h.ptr)
 	var event *C.snd_ctl_event_t
 	C.snd_ctl_event_malloc(&event)
 	defer C.snd_ctl_event_free(event)

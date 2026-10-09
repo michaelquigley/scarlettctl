@@ -1,5 +1,11 @@
-# IDE / Editor
-.vscode/
-.idea/
+.devprj
+.idea
+.vscode
 .DS_Store
+go.work
+go.work.sum
+.claude
+.codex
+.mercurius
+mercurius.yaml
 CLAUDE.md

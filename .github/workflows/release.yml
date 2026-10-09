@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    needs: test
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      # binaries link the target machine's native libraries; releases contain source only.
+      - name: Draft release from changelog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          notes="${RUNNER_TEMP}/release-notes.md"
+          awk -v tag="$RELEASE_TAG" '
+            /^## / { if (found) exit; found = ($0 == "## " tag); next }
+            found && NF { print; print "" }
+          ' CHANGELOG.md > "$notes"
+          if [[ ! -s "$notes" ]]; then
+            echo "no changelog entry for '$RELEASE_TAG'" >&2
+            exit 1
+          fi
+          args=(--draft --verify-tag --title "$RELEASE_TAG" --notes-file "$notes")
+          if [[ "$RELEASE_TAG" == *-* ]]; then
+            args+=(--prerelease)
+          fi
+          gh release create "$RELEASE_TAG" "${args[@]}"

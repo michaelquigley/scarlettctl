@@ -1,5 +1,7 @@
 package scarlettctl
 
+import "unsafe"
+
 // ControlType represents the type of an ALSA control element
 type ControlType int
 
@@ -142,6 +144,6 @@ type EventCallback func(control *Control)
 
 // alsaHandle wraps the C ALSA control handle (internal use only)
 type alsaHandle struct {
-	ptr     uintptr // snd_ctl_t* as uintptr
+	ptr     unsafe.Pointer // the snd_ctl_t*; this file is not cgo, so the C type is applied in cgo.go
 	pollFds []int
 }

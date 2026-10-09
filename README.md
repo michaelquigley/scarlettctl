@@ -37,7 +37,7 @@ sudo dnf install alsa-lib-devel
 sudo pacman -S alsa-lib
 ```
 
-ensure Go 1.21 or later is installed:
+ensure Go 1.25 or later is installed:
 
 ```bash
 go version
@@ -50,14 +50,8 @@ go version
 git clone https://github.com/michaelquigley/scarlettctl.git
 cd scarlettctl
 
-# download dependencies
-go mod download
-
-# build the CLI tool
-go build -o bin/scarlettctl ./cmd/scarlettctl
-
-# optionally install system-wide
-sudo install -m 755 bin/scarlettctl /usr/local/bin/
+# build and install into your GOPATH's bin
+make
 ```
 
 ### permissions
@@ -570,7 +564,7 @@ if the build still fails, try setting CGO flags manually:
 ```bash
 export CGO_CFLAGS="-I/usr/include/alsa"
 export CGO_LDFLAGS="-lasound"
-go build -o bin/scarlettctl ./cmd/scarlettctl
+make
 ```
 
 ### device not responding

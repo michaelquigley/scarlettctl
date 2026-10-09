@@ -1,4 +1,4 @@
 researching:
+  - terminus-canon-for-scarlettctl.md
   - card-exposes-no-hardware-serial.md
   - eventmonitor-stop-flag-is-unsynchronized.md
-  - go-vet-flags-unsafepointer-use-in-cgogo.md
