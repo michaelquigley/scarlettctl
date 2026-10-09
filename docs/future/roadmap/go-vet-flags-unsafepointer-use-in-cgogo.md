@@ -1,6 +1,6 @@
 ---
 title: go vet flags unsafe.Pointer use in cgo.go
-state: inbox
+state: researching
 created: 2026-09-21
 tags: [defect]
 ---
